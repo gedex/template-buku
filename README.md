@@ -7,7 +7,8 @@ Markdown syntax and compiles it into html book.
 ## How To
 
 1. Clone this repo
-2. Edit `config.yaml` that satisfies your own needs
+2. Edit `config.yaml` that satisfies your own needs.
+   Chapters are ordered by sequences definition in `chapters`.
 3. Optionally edit html templates in `/templates`
 4. Start writing chapters in `/chapters`, see existing examples about
    file naming and content's structure.
