@@ -1,0 +1,15 @@
+title:       Belajar Python
+lang:        id
+lang_dir:    ltr
+date:        2012-11-1
+author:      Akeda Bagus
+license:     Creative Commons 3.0 Attribution License
+license_url: http://creativecommons.org/licenses/by/3.0/
+chapters:
+  - Pengenalan
+  - Chapter_Test
+  - Test_Dwi
+appendix:
+  - Materi_tambahan
+  - Tentang_buku_ini
+  - GNU_Free_Documentation_License

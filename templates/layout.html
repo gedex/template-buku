@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!--[if IE 6]><html id="ie6" dir="{{book.lang_dir}}" lang="{{book.lang}}"><![endif]-->
+<!--[if IE 7]><html id="ie7" dir="{{book.lang_dir}}" lang="{{book.lang}}"><![endif]-->
+<!--[if IE 8]><html id="ie8" dir="{{book.lang_dir}}" lang="{{book.lang}}"><![endif]-->
+<!--[if gt IE 8]><!--><html dir="{{book.lang_dir}}" lang="{{book.lang}}"><!--<![endif]-->
+<head>
+	<title>{{book.title}}</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="http://fonts.googleapis.com/css?family=Droid+Sans+Mono" rel="stylesheet" type="text/css">
+	<link href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css">
+	<link href="static/css/normalize.css" rel="stylesheet" type="text/css">
+	<link href="static/css/buku.css" rel="stylesheet" type="text/css">
+	<link href="static/css/codehilite.css" rel="stylesheet" type="text/css">
+	<link rel="shortcut icon" href="static/favicon.png">
+	<!--[if lt IE 9]>
+     <script src="js/html5shiv.js"></script>
+     <script src="js/css3-mediaqueries.js"></script>
+	<![endif]-->
+</head>
+<body data-spy="scroll" data-target="#sidebar" cz-shortcut-listen="true">
+	<div id="container">
+		<div id="sidebar">
+			{{>navigation}}
+			<a id="hide-me" href="#sidebar">Hide me</a>
+		</div>
+		<!-- / sidebar -->
+
+		<section id="book">
+			<div id="content">
+				{{>chapter}}
+			</div>
+		</section>
+		<!-- / book -->
+
+		<a id="show-me-nav" href="#sidebar">Nav</a>
+	</div>
+	<!-- / container -->
+
+	<footer id="footer">
+		{{>footer}}
+	</footer>
+	<!-- / footer -->
+
+<script type="text/javascript" src="static/js/jquery.min.js"></script>
+<script type="text/javascript" src="static/js/bootstrap-scrollspy.js"></script>
+<script type="text/javascript" src="static/js/bootstrap-affix.js"></script>
+<script type="text/javascript" src="static/js/buku.js"></script>
+</body>
+</html>
