@@ -29,6 +29,7 @@ import shutil
 import yaml
 
 from chapter import Chapter
+from cover import Cover
 from lxml.html import fragments_fromstring
 from lxml.html import tostring as to_html_string
 from markdown2 import markdown_path as md2html
@@ -54,6 +55,9 @@ def build():
 
   if not os.path.exists(TARGET_BUILD):
     os.makedirs(TARGET_BUILD)
+
+  # Cover page
+  build_cover_book(config=config)
 
   # Build toc page
   build_html_toc(config=config)
@@ -87,6 +91,19 @@ def build():
     if exc.errno == errno.ENOTDIR:
       shutil.copy(static_dir, target_dir)
     else: raise
+
+
+def build_cover_book(config=None):
+  """Build cover page of the book
+  """
+
+  layout = get_cover_layout(book=config)
+  rendered = RENDERER.render(layout)
+
+  # Writes to html file
+  cover = open(os.path.join(TARGET_BUILD, "cover.html"), 'w')
+  cover.write(rendered)
+  cover.close()
 
 
 def build_html_toc(config=None):
@@ -146,6 +163,9 @@ def get_html_chapter(chapter):
   """
 
   md_filename = os.path.join(CHAPTERS_DIR, "%s.md" % chapter)
+  if not os.path.exists(md_filename):
+    return (None, None)
+
   html = md2html(md_filename, extras=["header-ids", "fenced-code-blocks"])
 
   # Convert html fragments to node element
@@ -161,13 +181,16 @@ def get_chapter_title(nodes, filename=None, chapter_no=None):
   """
 
   title = None
+  try:
+    nodes = iter(nodes)
 
-  for node in nodes:
-    if node.tag == 'h1':
-      title = node.text
+    for node in nodes:
+      if node.tag == 'h1':
+        title = node.text
+        break
 
-  # Fallback to use filename as a title
-  if not title:
+  except TypeError, te:
+    # Fallback to use filename as a title.
     # Assuming each chapter is underscore-separated-word named
     splitted = filename.split('_')
     if len(splitted) <= 1:
@@ -208,8 +231,14 @@ def get_chapter_structure(elements, chapter_no=None, chapter_file=None):
   structure found in chapter. Used by toc builder.
   """
 
-  nodes = [el for el in elements if el.tag in CHAPTER_HEADINGS]
-  nodes.reverse()
+  try:
+    nodes = [el for el in elements if el.tag in CHAPTER_HEADINGS]
+    nodes.reverse()
+  except TypeError, te:
+    return ""
+
+  if not nodes:
+    return ""
 
   # Header stacks to keep how depth indent
   hstack = []
@@ -298,6 +327,11 @@ def get_chapter_layout(book=None, chapter=None, chapter_nav=None):
 def get_toc_layout(book=None, toc=None):
 
   return Toc(renderer=RENDERER, book=book, toc=toc)
+
+
+def get_cover_layout(book=None):
+
+  return Cover(renderer=RENDERER, book=book)
 
 
 if __name__ == '__main__':
