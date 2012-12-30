@@ -1,0 +1,30 @@
+{{>global_header}}
+
+<div id="toc">
+	{{>chapter_nav}}
+
+	<div id="content">
+		<h1>Table of Contents</h1>
+
+		{{{toc}}}
+		<!-- / toc-list -->
+		</div>
+	<!-- / content -->
+
+	<footer id="footer">
+		<p>
+			&copy; 2012 {{book.author}}. Semua Hak Cipta Dilindungi.
+			Buku ini dipublikasikan menggunakan lisensi
+			<a href="{{book.license_url}}">{{book.license}}</a> dan
+			ditulis menggunakan bantuan perangkat lunak terbuka
+			<a href="#">buku-template</a>. Kesalahan tulisan,
+			permintaan materi tambahan, dan sejenisnya dapat diajukan
+			melaui pengisian <a href="#">issue di Github</a>
+		<p>
+	</footer>
+	<!-- / footer -->
+
+</div>
+<!-- / toc -->
+
+{{>global_footer}}
