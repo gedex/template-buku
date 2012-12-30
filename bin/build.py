@@ -183,20 +183,20 @@ def get_chapter_title(nodes, filename=None, chapter_no=None):
   title = None
   try:
     nodes = iter(nodes)
-
     for node in nodes:
       if node.tag == 'h1':
         title = node.text
         break
 
-  except TypeError, te:
+  finally:
     # Fallback to use filename as a title.
     # Assuming each chapter is underscore-separated-word named
-    splitted = filename.split('_')
-    if len(splitted) <= 1:
-      title = filename
-    else:
-      title = ' '.join(splitted)
+    if not title:
+      splitted = filename.split('_')
+      if len(splitted) <= 1:
+        title = filename
+      else:
+        title = ' '.join(splitted)
 
   if chapter_no:
     title = "%d. %s" % (chapter_no, title)
