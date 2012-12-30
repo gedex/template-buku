@@ -1,6 +1,9 @@
 .codehilite {
+	margin: 0 -20px;
 	background-color: #f7f7f7;
-	border: 1px solid #ccc;
+	border-width: 1px 0;
+	border-style: solid;
+	border-color: #ddd;
 	padding: 10px;
 	font-size: 86%;
 }
