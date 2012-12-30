@@ -27,6 +27,13 @@ code, pre, .code {
 	font-family: "Droid Sans Mono", monospace;
 }
 
+p code {
+	padding: 0px 5px;
+	border: 1px solid #EAEAEA;
+	background-color: #F8F8F8;
+	white-space: nowrap;
+}
+
 p, pre {
 	line-height: 1.5em;
 }
@@ -68,7 +75,7 @@ a:visited {
 	text-shadow: 0px 1px 1px rgba(255, 255, 255, 1)
 }
 
-#chapter, #toc {
+#chapter, #toc, #cover {
 	position: relative;
 	width: 480px;
 	margin: 0 auto;

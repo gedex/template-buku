@@ -1,5 +1,5 @@
 ---
-title:       Belajar Python
+title:       Belajar Bahasa Lorem Ipsum Cara Susah
 lang:        id
 lang_dir:    ltr
 date:        2012-11-1
@@ -7,11 +7,12 @@ author:      Akeda Bagus
 license:     Creative Commons 3.0 Attribution License
 license_url: http://creativecommons.org/licenses/by/3.0/
 chapters:
-  - Pengenalan
-  - Chapter_Test
-  - Test_Dwi
-appendix:
-  - Materi_tambahan
-  - Tentang_buku_ini
-  - GNU_Free_Documentation_License
-...
+  - Instal_Lorem_Ipsum
+  - Memulai_Lorem_Ipsum
+  - Tipe_Data_Bawaan_Lorem_Ipsum
+  - Variabel
+  - Struktur_Kontrol
+  - Tipe_Data_Komposit_Lorem_Ipsum
+  - Fungsi
+  - Class_dan_Object
+  - Langkah_Selanjutnya
