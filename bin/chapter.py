@@ -2,8 +2,8 @@
 
 # Copyright 2012 Akeda Bagus.
 #
-# This file partial.py is used to generate html files
-# of the template-buku.
+# This file chapter.py is used to generate html files
+# of chapters contained in config.yaml.
 #
 # template-buku is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as published
@@ -19,27 +19,38 @@
 # along with template-buku. If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""Module to construct partial templates
+"""Module to construct chapter template
 """
 
 from pystache import TemplateSpec
 
 
-class Layout(TemplateSpec):
+class Chapter(TemplateSpec):
 
-	def __init__(self, renderer, book=None, chapter=None, nav=None):
+	def __init__(self, renderer, book=None, chapter=None, chapter_nav=None):
 		"""Construct an instance.
 		"""
 		self.renderer = renderer
 		self.book = book
 		self.chapter = chapter
-		self.nav = nav
+		self.chapter_nav = chapter_nav
+
 
 	def book(self):
+		"""Book information, comes from config.yaml
+		"""
 		return self.book
 
+
 	def chapter(self):
+		"""Chapter content
+		"""
+
 		return self.chapter
 
-	def nav(self):
-		return self.nav
+
+	def chapter_nav(self):
+		"""Chapter navigation (prev, toc, next)
+		"""
+
+		return self.chapter_nav
