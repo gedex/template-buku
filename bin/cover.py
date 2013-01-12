@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Copyright 2012 Akeda Bagus.
 #
-# This file cover.py is used to generate html file
+# This file, cover.py, is used to generate html file
 # of cover page.
 #
 # template-buku is free software: you can redistribute it and/or
@@ -26,24 +27,20 @@ from pystache import TemplateSpec
 
 
 class Cover(TemplateSpec):
+    def __init__(self, renderer, book=None):
+        """Construct an instance.
+        """
+        self.renderer = renderer
+        self.book = book
 
-	def __init__(self, renderer, book=None):
-		"""Construct an instance.
-		"""
-		self.renderer = renderer
-		self.book = book
+    def book(self):
+        """Book information, comes from config.yaml
+        """
+        return self.book
 
-
-	def book(self):
-		"""Book information, comes from config.yaml
-		"""
-		return self.book
-
-
-	def chapter_nav(self):
-		"""Chapter navigation (prev, toc, next)
-		"""
-
-		return {'prev': None,
-						'toc': 'toc.html#toc-list',
-						'next': 'toc.html#toc-list'}
+    def chapter_nav(self):
+        """Chapter navigation (prev, toc, next)
+        """
+        return {'prev': None,
+                'toc': 'toc.html#toc-list',
+                'next': 'toc.html#toc-list'}

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Copyright 2012 Akeda Bagus.
 #
-# This file build.py is used to generate build files (html, pdf, etc)
+# This file, build.py, is used to generate build files (html, pdf, etc)
 # of the template-buku.
 #
 # template-buku is free software: you can redistribute it and/or
@@ -49,290 +50,324 @@ RENDERER = Renderer(search_dirs=TEMPLATES_DIR, file_extension='html')
 
 
 def build():
+    """Convert all Markdown chapters into html files.
+    """
+    stream = file('./config.yaml', 'r')
+    config = yaml.load(stream)
 
-  stream = file('./config.yaml', 'r')
-  config = yaml.load(stream)
+    if not os.path.exists(TARGET_BUILD):
+        os.makedirs(TARGET_BUILD)
 
-  if not os.path.exists(TARGET_BUILD):
-    os.makedirs(TARGET_BUILD)
+    # Cover page
+    build_cover_book(config=config)
 
-  # Cover page
-  build_cover_book(config=config)
+    # Build toc page
+    build_html_toc(config=config)
 
-  # Build toc page
-  build_html_toc(config=config)
+    # Build chapter in Markdown file into html file
+    for idx, chapter in enumerate(config['chapters']):
+        chapter_nav = {'prev': 'toc.html', 'next': None}
 
-  # Build chapter in Markdown file into html file
-  for idx, chapter in enumerate(config['chapters']):
-    chapter_nav = {'prev': 'toc.html', 'next': None}
+        # HTML file of previous chapter
+        if idx:
+            chapter_nav['prev'] = "%s.html#chapter" % config['chapters'][idx-1]
 
-    # HTML file of previous chapter
-    if idx:
-      chapter_nav['prev'] = "%s.html#chapter" % config['chapters'][idx-1]
+        # HTML file of next chapter
+        if idx < (len(config['chapters'])-1):
+            chapter_nav['next'] = "%s.html#chapter" % config['chapters'][idx+1]
 
-    # HTML file of next chapter
-    if idx < (len(config['chapters'])-1):
-      chapter_nav['next'] = "%s.html#chapter" % config['chapters'][idx+1]
+        chapter_nav['toc'] = "toc.html"
 
-    chapter_nav['toc'] = "toc.html"
+        # Build the chapter if the .md file exists
+        if os.path.exists(os.path.join(CHAPTERS_DIR,
+                          "%s.%s" % (chapter, 'md'))):
+            build_html_chapter(chapter, config=config, chapter_no=idx+1,
+                               chapter_nav=chapter_nav)
 
-    if os.path.exists(os.path.join(CHAPTERS_DIR, "%s.%s" % (chapter, 'md'))):
-      build_html_chapter(chapter, config=config, chapter_no=idx+1, chapter_nav=chapter_nav)
+    # Copy static assets
+    static_dir = os.path.join(TEMPLATES_DIR, 'static')
+    target_dir = os.path.join(TARGET_BUILD, 'static')
+    if os.path.isdir(target_dir):
+        shutil.rmtree(target_dir)
 
-  # Copy static assets
-  static_dir = os.path.join(TEMPLATES_DIR, 'static')
-  target_dir = os.path.join(TARGET_BUILD, 'static')
-  if os.path.isdir(target_dir):
-    shutil.rmtree(target_dir)
-
-  try:
-    shutil.copytree(static_dir, target_dir)
-  except OSError as exc:
-    if exc.errno == errno.ENOTDIR:
-      shutil.copy(static_dir, target_dir)
-    else: raise
+    try:
+        shutil.copytree(static_dir, target_dir)
+    except OSError as exc:
+        if exc.errno == errno.ENOTDIR:
+            shutil.copy(static_dir, target_dir)
+        else:
+            raise
 
 
 def build_cover_book(config=None):
-  """Build cover page of the book
-  """
+    """Build cover page of the book.
 
-  layout = get_cover_layout(book=config)
-  rendered = RENDERER.render(layout)
+    :param config: A dict of book configuration from config.yaml
+    """
+    layout = get_cover_layout(book=config)
+    rendered = RENDERER.render(layout)
 
-  # Writes to html file
-  cover = open(os.path.join(TARGET_BUILD, "cover.html"), 'w')
-  cover.write(rendered)
-  cover.close()
+    # Writes to html file
+    cover = open(os.path.join(TARGET_BUILD, "cover.html"), 'w')
+    cover.write(rendered)
+    cover.close()
 
 
 def build_html_toc(config=None):
-  """Build table of content page
-  """
+    """Build table of content page.
 
-  toc = '<ol id="toc-list">'
+    :param config: A dict of book configuration from config.yaml
+    """
+    toc = '<ol id="toc-list">'
 
-  for idx, chapter in enumerate(config['chapters']):
-    # html string and nodes presentation of current chapter
-    html, nodes = get_html_chapter(chapter)
+    for idx, chapter in enumerate(config['chapters']):
+        # html string and nodes presentation of current chapter
+        html, nodes = get_html_chapter(chapter)
 
-    chapter_title = "%s %d %s %s" % (CHAPTER_NO_BEFORE, idx+1,
-                                     CHAPTER_NO_AFTER,
-                                     get_chapter_title(nodes, filename=chapter))
+        chapter_title = "%s %d %s %s" % (CHAPTER_NO_BEFORE, idx+1,
+                                         CHAPTER_NO_AFTER,
+                                         get_chapter_title(nodes,
+                                                           filename=chapter))
 
-    chapter_file = "%s.html" % chapter
+        chapter_file = "%s.html" % chapter
 
-    chapter_structure = get_chapter_structure(nodes,
-                                              chapter_no=idx+1,
-                                              chapter_file=chapter_file)
+        chapter_structure = get_chapter_structure(nodes,
+                                                  chapter_no=idx+1,
+                                                  chapter_file=chapter_file)
 
-    toc = ''.join([toc, open_li_a(chapter_title, href="%s#chapter" % chapter_file),
-                  chapter_structure, close_li()])
+        toc = ''.join([toc, open_li_a(chapter_title,
+                       href="%s#chapter" % chapter_file), chapter_structure,
+                       close_li()])
 
-  toc = ''.join([toc, '</ol>'])
+    toc = ''.join([toc, '</ol>'])
 
-  layout = get_toc_layout(book=config, toc=toc)
-  rendered = RENDERER.render(layout)
+    layout = get_toc_layout(book=config, toc=toc)
+    rendered = RENDERER.render(layout)
 
-  # Writes toc to html file
-  toc = open(os.path.join(TARGET_BUILD, "toc.html"), 'w')
-  toc.write(rendered)
-  toc.close()
+    # Writes toc to html file
+    toc = open(os.path.join(TARGET_BUILD, "toc.html"), 'w')
+    toc.write(rendered)
+    toc.close()
 
 
 def build_html_chapter(chapter, config=None, chapter_no=None, chapter_nav=None):
-  """Build a single-page-html chapter
-  """
+    """Build a single-page-html chapter.
 
-  html, nodes = get_html_chapter(chapter)
+    :param chapter: A string of chapter's name as seen in config.yaml
+    :param config: A dict of book configuration from config.yaml
+    :param chapter_no: An int of chapter's number based on the order in
+        config.yaml
+    :param chapter_nav: Dict of previous, toc, and next chapters' link
+    """
+    html, nodes = get_html_chapter(chapter)
 
-  html = prefix_chapter_title_with_chapter_no(html, chapter_no=chapter_no)
+    html = prefix_chapter_title_with_chapter_no(html, chapter_no=chapter_no)
 
-  # Render the mustache
-  layout = get_chapter_layout(book=config, chapter=html, chapter_nav=chapter_nav)
-  rendered = RENDERER.render(layout)
+    # Render the mustache
+    layout = get_chapter_layout(book=config, chapter=html,
+                                chapter_nav=chapter_nav)
+    rendered = RENDERER.render(layout)
 
-  # Writes the resulted html from markdown
-  html_chapter = open(os.path.join(TARGET_BUILD, "%s.html" % chapter),'w')
-  html_chapter.write(rendered)
-  html_chapter.close()
+    # Writes the resulted html from markdown
+    html_chapter = open(os.path.join(TARGET_BUILD, "%s.html" % chapter),'w')
+    html_chapter.write(rendered)
+    html_chapter.close()
 
 
 def get_html_chapter(chapter):
-  """Reads markdown's chapter file and converts it to html and DOM representation
-  """
+    """Reads markdown's chapter file and converts it to html and
+    DOM representation. Returns the html string and DOM list as a tuple.
 
-  md_filename = os.path.join(CHAPTERS_DIR, "%s.md" % chapter)
-  if not os.path.exists(md_filename):
-    return (None, None)
+    :param chapter: A string of chapter's name as seen in config.yaml
+    :return: A tuple of html string and list of nodes
+    """
+    md_filename = os.path.join(CHAPTERS_DIR, "%s.md" % chapter)
+    if not os.path.exists(md_filename):
+        return (None, None)
 
-  html = md2html(md_filename, extras=["header-ids", "fenced-code-blocks"])
+    html = md2html(md_filename, extras=["header-ids", "fenced-code-blocks"])
 
-  # Convert html fragments to node element
-  nodes = fragments_fromstring(html)
+    # Convert html fragments to node element
+    nodes = fragments_fromstring(html)
 
-  return (html, nodes)
+    return (html, nodes)
 
 
 def get_chapter_title(nodes, filename=None, chapter_no=None):
-  """Get chapter title from html elements that's parsed by fragments_fromstring
+    """Get chapter title from html elements that's parsed by
+    fragments_fromstring. If no h1 found in elements use chapter's filename
+    instead.
 
-  If no h1 found in elements use chapter's filename instead.
-  """
+    :param nodes: A list of html nodes of a single chapter
+    :param filename: A string of chapter's filename
+    :param chapter_no: An int of chapter's number based on the order in
+        config.yaml
+    :return: A string representing chapter's title
+    """
+    title = None
+    try:
+        nodes = iter(nodes)
+        for node in nodes:
+            if node.tag == 'h1':
+                title = node.text
+                break
 
-  title = None
-  try:
-    nodes = iter(nodes)
-    for node in nodes:
-      if node.tag == 'h1':
-        title = node.text
-        break
+    finally:
+        # Fallback to use filename as a title.
+        # Assuming each chapter is underscore-separated-word named
+        if not title:
+            splitted = filename.split('_')
+            if len(splitted) <= 1:
+                title = filename
+            else:
+                title = ' '.join(splitted)
 
-  finally:
-    # Fallback to use filename as a title.
-    # Assuming each chapter is underscore-separated-word named
-    if not title:
-      splitted = filename.split('_')
-      if len(splitted) <= 1:
-        title = filename
-      else:
-        title = ' '.join(splitted)
+    if chapter_no:
+        title = "%d. %s" % (chapter_no, title)
 
-  if chapter_no:
-    title = "%d. %s" % (chapter_no, title)
-
-  return title
+    return title
 
 
 def prefix_chapter_title_with_chapter_no(html, chapter_no=None):
-  """Return the html string with first header prefixed with
+    """Return the html string with first header prefixed with
+    chapter number.
 
-  chapter number.
-  """
+    :param html: A string of html's chapter
+    :param chapter_no: An int of chapter's number based on the order in
+        config.yaml
+    :return: A string of html in which the title already prefixed with chapter's
+        number
+    """
+    # If there's no chapter_no as a prefix returns original html
+    if not chapter_no:
+        return html
 
-  if not chapter_no:
-    return html
+    # Convert html fragments to node element
+    nodes = fragments_fromstring(html)
 
-  # Convert html fragments to node element
-  nodes = fragments_fromstring(html)
+    # Apply to first important header
+    for node in nodes:
+        if node.tag in ['h1', 'h2']:
+            node.text = "%s %d %s %s" % (CHAPTER_NO_BEFORE, chapter_no,
+                                         CHAPTER_NO_AFTER, node.text)
+            break
 
-  # Apply to first important header
-  for node in nodes:
-    if node.tag in ['h1', 'h2']:
-      node.text = "%s %d %s %s" % (CHAPTER_NO_BEFORE, chapter_no, CHAPTER_NO_AFTER, node.text)
-      break
-
-  return ''.join([to_html_string(node) for node in nodes])
+    return ''.join([to_html_string(node) for node in nodes])
 
 
 def get_chapter_structure(elements, chapter_no=None, chapter_file=None):
-  """Return partial html string containing nested-header
+    """Return partial html string containing nested-header
 
-  structure found in chapter. Used by toc builder.
-  """
+    structure found in chapter. Used by toc builder.
 
-  try:
-    nodes = [el for el in elements if el.tag in CHAPTER_HEADINGS]
-    nodes.reverse()
-  except TypeError, te:
-    return ""
+    :param elements: A list of html nodes of a single chapter
+    :param chapter_no: An int of chapter's number based on the order in
+        config.yaml
+    :param chapter_file: A string of chapter's filename
+    :return: A string of chapter's structure/nav
+    """
+    try:
+        nodes = [el for el in elements if el.tag in CHAPTER_HEADINGS]
+        nodes.reverse()
+    except TypeError, te:
+        return ""
 
-  if not nodes:
-    return ""
+    if not nodes:
+        return ""
 
-  # Header stacks to keep how depth indent
-  hstack = []
+    # Header stacks to keep how depth indent
+    hstack = []
 
-  # Stringify first header into list
-  header = nodes.pop()
+    # Stringify first header into list
+    header = nodes.pop()
 
-  chapter_title = header.text
+    chapter_title = header.text
 
-  nav = '<ol><li><a href="%s#%s">%s</a>' % (chapter_file,
-                                            header.get('id'), chapter_title)
+    nav = '<ol><li><a href="%s#%s">%s</a>' % (chapter_file,
+                                              header.get('id'), chapter_title)
 
-  # Append header level, in numeric, to hstack
-  hstack.append(int(header.tag[1]))
+    # Append header level, in numeric, to hstack
+    hstack.append(int(header.tag[1]))
 
-  while nodes:
-    node = nodes.pop()
-    header = int(node.tag[1])
+    while nodes:
+        node = nodes.pop()
+        header = int(node.tag[1])
 
-    section_title = node.text
+        section_title = node.text
 
-    if header < hstack[-1]:   # Lower than means the header is more important.
-                              # This means `h1` is more important than `h2`
-      while hstack and header < hstack.pop():
-        nav = ''.join([nav, close_li_ol()]) # close li and ol until met the right indent
+        # Lower than means the header is more important.
+        # This means `h1` is more important than `h2`
+        if header < hstack[-1]:
+            while hstack and header < hstack.pop():
+                # close li and ol until met the right indent
+                nav = ''.join([nav, close_li_ol()])
 
-      nav = ''.join([nav, close_li(), open_li_a(section_title,
-                    href="%s#%s" % (chapter_file, node.get('id')))])
+            nav = ''.join([nav, close_li(), open_li_a(section_title,
+                           href="%s#%s" % (chapter_file, node.get('id')))])
 
-      hstack.append(header)
+            hstack.append(header)
 
-    elif header > hstack[-1]: # Greater than means the header is less important
+        # Greater than means the header is less important
+        elif header > hstack[-1]:
+            nav = ''.join([nav, open_ol(), open_li_a(section_title,
+                           href="%s#%s" % (chapter_file, node.get('id')))])
 
-      nav = ''.join([nav, open_ol(), open_li_a(section_title,
-                    href="%s#%s" % (chapter_file, node.get('id')))])
+            hstack.append(header)
 
-      hstack.append(header)
+        # Same header level
+        else:
+            nav = ''.join([nav, close_li(), open_li_a(section_title,
+                           href="%s#%s" % (chapter_file, node.get('id')))])
 
-    else:                     # Same header level
-      nav = ''.join([nav, close_li(), open_li_a(section_title,
-                    href="%s#%s" % (chapter_file, node.get('id')))])
+    # Close remaining unclosed header level in hstack
+    while hstack:
+        nav = ''.join([nav, close_li_ol()])
+        hstack.pop()
 
-  # Close remaining unclosed header level in hstack
-  while hstack:
-    nav = ''.join([nav, close_li_ol()])
-    hstack.pop()
-
-  return nav
+    return nav
 
 
 def close_ol_li():
-  return '</ol></li>'
+    return '</ol></li>'
 
 
 def close_li_ol():
-  return '</li></ol>'
+    return '</li></ol>'
 
 
 def close_li():
-  return '</li>'
+    return '</li>'
 
 
 def open_ol():
-  return '<ol>'
+    return '<ol>'
 
 
 def open_li_a(text, href=None):
-  if href is not None:
-    filename, ext = os.path.splitext(href)
-    if not ext:
-      href = '#' + filename
-  else:
-    href = '#'
+    if href is not None:
+        filename, ext = os.path.splitext(href)
+        if not ext:
+            href = '#' + filename
+    else:
+        href = '#'
 
-  return '<li><a href="%s">%s</a>' % (href, text)
+    return '<li><a href="%s">%s</a>' % (href, text)
 
 
 def get_chapter_layout(book=None, chapter=None, chapter_nav=None):
+    instance = Chapter(renderer=RENDERER, book=book, chapter=chapter,
+                       chapter_nav=chapter_nav)
 
-  instance = Chapter(renderer=RENDERER, book=book,
-                     chapter=chapter, chapter_nav=chapter_nav)
-
-  return instance
+    return instance
 
 
 def get_toc_layout(book=None, toc=None):
-
-  return Toc(renderer=RENDERER, book=book, toc=toc)
+    return Toc(renderer=RENDERER, book=book, toc=toc)
 
 
 def get_cover_layout(book=None):
-
-  return Cover(renderer=RENDERER, book=book)
+    return Cover(renderer=RENDERER, book=book)
 
 
 if __name__ == '__main__':
-  build()
+    build()

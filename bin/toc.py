@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Copyright 2012 Akeda Bagus.
 #
-# This file toc.py is used to generate html file
+# This file, toc.py, is used to generate html file
 # of table-of-contents.
 #
 # template-buku is free software: you can redistribute it and/or
@@ -26,32 +27,26 @@ from pystache import TemplateSpec
 
 
 class Toc(TemplateSpec):
+    def __init__(self, renderer, book=None, toc=None):
+        """Construct an instance.
+        """
+        self.renderer = renderer
+        self.book = book
+        self.toc = toc
 
-	def __init__(self, renderer, book=None, toc=None):
-		"""Construct an instance.
-		"""
-		self.renderer = renderer
-		self.book = book
-		self.toc = toc
+    def book(self):
+        """Book information, comes from config.yaml
+        """
+        return self.book
 
+    def toc(self):
+        """Table-of-content html fragment in nested list
+        """
+        return self.toc
 
-	def book(self):
-		"""Book information, comes from config.yaml
-		"""
-		return self.book
-
-
-	def toc(self):
-		"""Table-of-content html fragment in nested list
-		"""
-
-		return self.toc
-
-
-	def chapter_nav(self):
-		"""Chapter navigation (prev, toc, next)
-		"""
-
-		return {'prev': 'cover.html',
-						'toc': '#toc-list',
-						'next': "%s.html#chapter" % self.book['chapters'][0]}
+    def chapter_nav(self):
+        """Chapter navigation (prev, toc, next)
+        """
+        return {'prev': 'cover.html',
+                'toc': '#toc-list',
+                'next': "%s.html#chapter" % self.book['chapters'][0]}

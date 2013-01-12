@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Copyright 2012 Akeda Bagus.
 #
-# This file chapter.py is used to generate html files
+# This file, chapter.py, is used to generate html files
 # of chapters contained in config.yaml.
 #
 # template-buku is free software: you can redistribute it and/or
@@ -26,31 +27,25 @@ from pystache import TemplateSpec
 
 
 class Chapter(TemplateSpec):
+    def __init__(self, renderer, book=None, chapter=None, chapter_nav=None):
+        """Construct an instance.
+        """
+        self.renderer = renderer
+        self.book = book
+        self.chapter = chapter
+        self.chapter_nav = chapter_nav
 
-	def __init__(self, renderer, book=None, chapter=None, chapter_nav=None):
-		"""Construct an instance.
-		"""
-		self.renderer = renderer
-		self.book = book
-		self.chapter = chapter
-		self.chapter_nav = chapter_nav
+    def book(self):
+        """Book information, comes from config.yaml
+        """
+        return self.book
 
+    def chapter(self):
+        """Chapter content
+        """
+        return self.chapter
 
-	def book(self):
-		"""Book information, comes from config.yaml
-		"""
-		return self.book
-
-
-	def chapter(self):
-		"""Chapter content
-		"""
-
-		return self.chapter
-
-
-	def chapter_nav(self):
-		"""Chapter navigation (prev, toc, next)
-		"""
-
-		return self.chapter_nav
+    def chapter_nav(self):
+        """Chapter navigation (prev, toc, next)
+        """
+        return self.chapter_nav
